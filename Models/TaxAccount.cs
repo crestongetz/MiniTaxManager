@@ -13,6 +13,9 @@ namespace TaxManager.Models
         // subclasses must implment with override
         public abstract decimal PenaltyRate { get;}
 
+        // subclasses optionally implement with override
+        public virtual string Describe() => $"Tax Account for {Owner} (ID: {Id}) (Balance: {BalanceOwed:C})";
+
         // Constructor
         protected TaxAccount(int id, string owner)
         {
