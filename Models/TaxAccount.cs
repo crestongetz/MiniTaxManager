@@ -41,6 +41,16 @@ namespace TaxManager.Models
             Transactions.Add(new Transaction(DateTime.Now, TransactionType.Payment, amount, note));
         }
 
+        public decimal ApplyPenalty(string note)
+        {
+            if (BalanceOwed <= 0) return 0; // no penalty if balance is zero or negative
+
+            decimal penalty = BalanceOwed * PenaltyRate;
+            BalanceOwed += penalty;
+            Transactions.Add(new Transaction(DateTime.Now, TransactionType.Penalty, penalty, note));
+            return penalty;
+        }
+
         
     }
 }

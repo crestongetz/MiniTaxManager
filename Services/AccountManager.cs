@@ -62,17 +62,57 @@ namespace TaxManager.Services
 
         public void AssessTax()
         {
-                
+            TaxAccount? account = SearchAccount(); // null if not found
+            if (account is null)
+            { 
+                Console.WriteLine("Account not found.");
+                return;
+            }
+
+            decimal amount = ReadAmount("Enter tax amount to assess: ");
+            string note = ReadText("Enter note for assessment: ", 0, 150);
+
+            account.AssessTax(amount, note);
+            Console.WriteLine($"Tax assessed: {amount:C} for account #{account.Id}. New balance: {account.BalanceOwed:C}");
         }
 
         public void RecordPayment()
         {
-                
+            TaxAccount? account = SearchAccount(); // null if not found
+            if (account is null)
+            { 
+                Console.WriteLine("Account not found.");
+                return;
+            }
+
+            decimal amount = ReadAmount("Enter payment amount: ");
+            string note = ReadText("Enter note for payment: ", 0, 150);
+
+            account.ApplyPayment(amount, note);
+            Console.WriteLine($"Payment recorded: {amount:C} for account #{account.Id}. New balance: {account.BalanceOwed:C}");      
         }
 
+        // Applies a penalty to the account on their balanced owed based on account type
+        // Method has no check for double charging, in a production system checks would be needed. 
         public void ApplyLateFee()
         {
-                
+            TaxAccount? account = SearchAccount();
+            if (account is null)
+            {
+                Console.WriteLine("Account not found.");
+                return;
+            }
+
+            decimal penalty = account.ApplyPenalty("Late fee applied");
+
+            if (penalty > 0) Console.WriteLine("No balance owed. No penalty can be applied");
+            else 
+            {
+                Console.WriteLine($"Penalty of {penalty:C} applied to account #{account.Id}");
+                Console.WriteLine($"New balance: {account.BalanceOwed:C}");
+            }
+
+
         }
 
         public void ViewAccount()
@@ -80,13 +120,13 @@ namespace TaxManager.Services
             TaxAccount? account = SearchAccount();
             if (account is null) return;
             Console.WriteLine(account.Describe());
-            
+
             // Show transactions
         }
 
         public void ShowReports()
         {
-                
+            //TODO
         }
 
 
@@ -105,20 +145,32 @@ namespace TaxManager.Services
         }
 
         // Searchs for account by Id and returns account, null if not found
-        private TaxAccount? SearchAccount()
+        private TaxAccount? SearchAccount(int? accountId = null)
             {
-                Console.Write("Enter account ID: ");
-                string input = Console.ReadLine()?.Trim() ?? "";
+                TaxAccount? account = null;
 
-                if (!int.TryParse(input, out int accountId))
+                if (!accountId.HasValue)
+                {
+                    Console.Write("Enter account ID: ");
+                    string input = Console.ReadLine()?.Trim() ?? "";
+
+                    if (!int.TryParse(input, out int id))
+                    {
+                        Console.WriteLine("Invalid account Id.");
+                        return null;
+                    }
+                    accountId = id;
+                }
+
+                if (!_accounts.TryGetValue(accountId.Value, out account))
                 {
                     Console.WriteLine("Invalid account Id.");
                     return null;
                 }
 
-                if (!_accounts.TryGetValue(accountId, out TaxAccount? account))
+                if (!_accounts.TryGetValue(accountId.Value, out account))
                 {
-                    Console.WriteLine($"Account with ID {accountId} not found.");
+                    Console.WriteLine($"Account with ID {accountId.Value} not found.");
                     return null;
                 }
                 return account;
@@ -147,5 +199,17 @@ namespace TaxManager.Services
                 Console.WriteLine($"Please enter one of: {string.Join(", ", allowed)}");
             }
         }
+        private static decimal ReadAmount(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                if (decimal.TryParse(Console.ReadLine(), out decimal value) && value > 0)
+                    return value;
+                Console.WriteLine("Please enter a positive number.");
+            }
+        }
+
+
     }
 }
