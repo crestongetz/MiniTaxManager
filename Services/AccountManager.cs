@@ -8,6 +8,7 @@ namespace TaxManager.Services
     {
         private readonly Dictionary<int, TaxAccount> _accounts = new();
         private readonly Dictionary<string, Action> _menu;
+        private readonly IReportable _reports = new AccountReports();
         private int _nextId = 1;
 
         public AccountManager()
@@ -94,6 +95,7 @@ namespace TaxManager.Services
 
         // Applies a penalty to the account on their balanced owed based on account type
         // Method has no check for double charging, in a production system checks would be needed. 
+        // Also fee is applyed to entire balance, not just late portion.
         public void ApplyLateFee()
         {
             TaxAccount? account = SearchAccount();
@@ -105,7 +107,7 @@ namespace TaxManager.Services
 
             decimal penalty = account.ApplyPenalty("Late fee applied");
 
-            if (penalty > 0) Console.WriteLine("No balance owed. No penalty can be applied");
+            if (penalty == 0) Console.WriteLine($"Account {account.Id} has no balance owed. No penalty can be applied");
             else 
             {
                 Console.WriteLine($"Penalty of {penalty:C} applied to account #{account.Id}");
@@ -122,11 +124,31 @@ namespace TaxManager.Services
             Console.WriteLine(account.Describe());
 
             // Show transactions
+            if (account.Transactions.Count == 0)
+            {
+                Console.WriteLine("No transactions found for this account.");
+            }
+            else
+            {
+                Console.WriteLine("====Transactions====");
+                foreach (var transaction in account.Transactions)
+                {
+                    Console.WriteLine($"{transaction.Date}: {transaction.Type} of {transaction.Amount:C} - {transaction.Note}");
+                }
+            }
         }
 
         public void ShowReports()
         {
-            //TODO
+            // Better to prompt the user for a report type but this is fine for now
+            Console.WriteLine("====Reports====");
+            Console.WriteLine($"Total owed across all accounts: {_reports.TotalOwed(_accounts.Values):C}");
+            Console.WriteLine("===Debtors===");
+            foreach (var account in _reports.Debtors(_accounts.Values))
+            {
+                Console.WriteLine(account.Describe());
+            }
+            
         }
 
 
