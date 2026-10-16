@@ -36,6 +36,12 @@ dotnet run
 0. Exit
 ```
 
+
+
+
+https://github.com/user-attachments/assets/8f092b04-57d6-4511-93b9-bf3a46bbe123
+
+
 ## Project Structure
 
 ```
