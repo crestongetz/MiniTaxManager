@@ -12,7 +12,14 @@ namespace TaxManager.Models
 
         public override string Describe()
         {
-            return $"Individual account #{Id} for {Owner}: owes {BalanceOwed:C}, penalty rate {PenaltyRate:P0}";
+
+        return $"""
+            Individual account #{Id} for {Owner}
+            Owes: {BalanceOwed:C}
+            Penalty rate: {PenaltyRate:P0}
+            Next due date: {NextDueDate?.ToString("d") ?? "N/A"}
+            """;
+
         }
     }
 }

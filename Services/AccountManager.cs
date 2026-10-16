@@ -73,7 +73,8 @@ namespace TaxManager.Services
             decimal amount = ReadAmount("Enter tax amount to assess: ");
             string note = ReadText("Enter note for assessment: ", 0, 150);
 
-            account.AssessTax(amount, note);
+            // All late payments are set to be due in 30 days, could be changed to allow for user input
+            account.AssessTax(amount, note, DateTime.Today.AddDays(30));
             Console.WriteLine($"Tax assessed: {amount:C} for account #{account.Id}. New balance: {account.BalanceOwed:C}");
         }
 
@@ -93,9 +94,9 @@ namespace TaxManager.Services
             Console.WriteLine($"Payment recorded: {amount:C} for account #{account.Id}. New balance: {account.BalanceOwed:C}");      
         }
 
+
         // Applies a penalty to the account on their balanced owed based on account type
         // Method has no check for double charging, in a production system checks would be needed. 
-        // Also fee is applyed to entire balance, not just late portion.
         public void ApplyLateFee()
         {
             TaxAccount? account = SearchAccount();
@@ -105,9 +106,9 @@ namespace TaxManager.Services
                 return;
             }
 
-            decimal penalty = account.ApplyPenalty("Late fee applied");
+            decimal? penalty = account.ApplyPenalty("Late fee applied");
 
-            if (penalty == 0) Console.WriteLine($"Account {account.Id} has no balance owed. No penalty can be applied");
+            if (penalty == null || penalty == 0) Console.WriteLine($"Account {account.Id} has no balance owed. No penalty can be applied");
             else 
             {
                 Console.WriteLine($"Penalty of {penalty:C} applied to account #{account.Id}");
