@@ -187,12 +187,6 @@ namespace TaxManager.Services
 
                 if (!_accounts.TryGetValue(accountId.Value, out account))
                 {
-                    Console.WriteLine("Invalid account Id.");
-                    return null;
-                }
-
-                if (!_accounts.TryGetValue(accountId.Value, out account))
-                {
                     Console.WriteLine($"Account with ID {accountId.Value} not found.");
                     return null;
                 }

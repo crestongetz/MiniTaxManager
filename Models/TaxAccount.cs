@@ -8,7 +8,9 @@ namespace TaxManager.Models
         public int Id { get; }
         public string Owner { get;}
         public decimal BalanceOwed { get; private set;}
-        public List<Transaction> Transactions { get; } = new();
+        
+        private readonly List<Transaction> _transactions = new(); // Only class can modify
+        public IReadOnlyList<Transaction> Transactions => _transactions;
 
         // subclasses must implment with override
         public abstract decimal PenaltyRate { get;}
@@ -36,7 +38,7 @@ namespace TaxManager.Models
                 throw new ArgumentException("Invalid due date.", nameof(dueDate));
 
             BalanceOwed += amount;
-            Transactions.Add(new Transaction(DateTime.Now, TransactionType.Assessment, amount, note, dueDate));
+            _transactions.Add(new Transaction(DateTime.Now, TransactionType.Assessment, amount, note, dueDate));
         }
 
         public void ApplyPayment(decimal amount, string note)
@@ -44,7 +46,7 @@ namespace TaxManager.Models
             if (amount <= 0) throw new ArgumentException("Amount must be a positive value.", nameof(amount));
 
             BalanceOwed -= amount;
-            Transactions.Add(new Transaction(DateTime.Now, TransactionType.Payment, amount, note));
+            _transactions.Add(new Transaction(DateTime.Now, TransactionType.Payment, amount, note));
         }
 
         // Applies a penalty to the account
@@ -80,7 +82,7 @@ namespace TaxManager.Models
 
 
             BalanceOwed += penalty;
-            Transactions.Add(new Transaction(DateTime.Now, TransactionType.Penalty, penalty, note));
+            _transactions.Add(new Transaction(DateTime.Now, TransactionType.Penalty, penalty, note));
             return penalty;
         }
 
