@@ -2,6 +2,8 @@
 
 A C# console app for managing tax accounts. Create individual or business accounts, assess taxes with due dates, record payments, and apply late penalties on overdue balances.
 
+https://github.com/user-attachments/assets/8f092b04-57d6-4511-93b9-bf3a46bbe123
+
 ## Features
 
 - Individual and business accounts, each with its own penalty rate
@@ -22,25 +24,6 @@ git clone https://github.com/<your-username>/TaxManager.git
 cd TaxManager
 dotnet run
 ```
-
-## Usage
-
-```
-=== Tax Account Manager ===
-1. Create account
-2. Assess tax
-3. Record payment
-4. Apply late penalties
-5. View account
-6. Reports
-0. Exit
-```
-
-
-
-
-https://github.com/user-attachments/assets/8f092b04-57d6-4511-93b9-bf3a46bbe123
-
 
 ## Project Structure
 
